@@ -1,0 +1,2 @@
+MD5(good.py)= e1a47d14242ad87a79157c9eca980ca4
+MD5(evil.py)= e1a47d14242ad87a79157c9eca980ca4
