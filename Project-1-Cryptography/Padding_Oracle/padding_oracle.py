@@ -3,6 +3,8 @@
 import requests
 import sys
 import json
+from Crypto.Cipher import AES
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
