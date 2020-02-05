@@ -42,47 +42,38 @@ def pop_var(s):
     freqs = Counter(s)
     mean = sum(float(v)/len(s) for v in freqs.values())/len(freqs)  
     return sum((float(freqs[c])/len(s)-mean)**2 for c in freqs)/len(freqs)
-
-def encrypt(s):
-    key = "UVWXYZ"
-    c = ""
-
-    LETTERS = {letter: index for index, letter in enumerate(ascii_uppercase, start=0)}
-    NUMBERS = {index: letter for index, letter in enumerate(ascii_uppercase, start=0)}
-    #print(NUMBERS)
-    
-    for element in range(0,len(s)):
-        c += NUMBERS[(LETTERS[s[element]] + LETTERS[key[element%len(key)]])%26]
-        #c = chr((ord(s[element])+ord(key[element%len(key)]))%26)
-        #print(c)
-        #d = NUMBERS[c]
-        #print(d)
-
-    return c
     
 def keyLength(s):
+    """ Using IoC method to determine key lenth - highest IoC value will be the key lenth.
+        Input - s - ciphertext """
 
     mean = {}
     
-    for i in range(1,14):
+    """ Loop through all possible key lengths from 2 to 13 """
+    for i in range(2,14):
         coset_var = 0;
         
+        """ Divide ciphertext into i cosets and determine IoC for each coset """
         for j in range(0,i):
             coset = s[j::i]
             freqs = Counter(coset)
             coset_var += sum(v*(v-1) for v in freqs.values())/(len(coset)*(len(coset)-1))
-            #coset_var += pop_var(coset)
 
+        """ For each key length, take the mean of IoC for all cosets """
         mean[i] = (coset_var/i)
-        print("Mean assuming length ",i,": ",(coset_var/i))
+        #print("Mean assuming length ",i,": ",(coset_var/i))
 
-    key_length = max(mean, key=mean.get)
-    print("Estimated key length:",key_length)
+    key_length = max(mean, key=mean.get) #Determine max IoC
+    #print("Estimated key length:",key_length)
 
     return key_length
 
 def key_detector(length, s):
+    """ Determine the key using chi-square method 
+        input - length - length of key
+                s - ciphertext """
 
+    """ Numbering of alphabets from 1 to 26 and vice versa"""            
     LETTERS = {letter: index for index, letter in enumerate(ascii_uppercase, start=0)}
     NUMBERS = {index: letter for index, letter in enumerate(ascii_uppercase, start=0)}
 
@@ -90,8 +81,9 @@ def key_detector(length, s):
 
     for i in range(0,length):
         sum_list = []
-        coset = s[i::length]
+        coset = s[i::length] #Divide ciphertext into length number of cosets
 
+        """ Shift each letter of the coset left by one over 26 iterations and determine the chi-square for each  """
         for shift in range(0,26):
             sum = 0
             shifted_coset = ""
@@ -106,11 +98,11 @@ def key_detector(length, s):
                 sum += ((cipher_letter_freq - letter_freqs[j])**2)/letter_freqs[j]
 
             sum_list.append(sum)
-            #print("X^2 for coset",i+1,"shifted",shift,"times:",sum)
 
+        """ Determining the index of min chi-square value. Alphabet corresponding to the index is one of the letters of key """
         min_sum_index = sum_list.index(min(sum_list))
         key += NUMBERS[min_sum_index]
-        print("Key:",key)
+        #print("Key:",key)
 
     return key
 
@@ -131,8 +123,7 @@ if __name__ == "__main__":
     # Ignore line breaks and spaces, convert to all upper case
     cipher = sys.stdin.read().replace("\n", "").replace(" ", "").upper()
 
-    #c = encrypt(cipher)
     key = key_detector(keyLength(cipher), cipher)
-    decrypt(cipher, key)
+    print(key)
     #################################################################
     # Your code to determine the key and decrypt the ciphertext here
