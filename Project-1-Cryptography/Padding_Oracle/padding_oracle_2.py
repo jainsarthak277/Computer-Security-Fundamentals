@@ -54,20 +54,16 @@ def decrypt_block(cipher_blocks):
                 cipher_bytes[-k] = i ^ decrypted_block[-k] 
             for j in range(0,256): #Iterate over all possibilities for a byte 
                 cipher_bytes[-i] = j
-                print(cipher_bytes.hex())
         
                 cipher_blocks_dup[-2] = cipher_bytes.hex()
                 ciphertext = ""
                 for ele in cipher_blocks_dup:
                     ciphertext += ele
                 if verify_padding(ciphertext) == 1:
-                    print(j)
                     break;
 
             decrypted_block.insert(0,(j ^ i))
-            print("decrypted_block: ", decrypted_block)
             plaintext_block.insert(0,(decrypted_block[-i] ^ bytearray.fromhex(prev_block)[-i]))
-            print("plaintext: ", plaintext_block)
 
             """ Once last byte of last block is determined, strip last 2 blocks and dcrypt from 3rd last block """
             if i == 1 and z == 1:
@@ -84,10 +80,8 @@ def decrypt_block(cipher_blocks):
 
             unpadded_block = bytes(plaintext_block)
             decrypted_text = unpadded_block.hex() + decrypted_text 
-            print("Block",z,":",unpadded_block.hex())
             z = z + 1
 
-    print(decrypted_text)
     actual_text_ascii = bytearray.fromhex(decrypted_text).decode()
     print(actual_text_ascii)
 
