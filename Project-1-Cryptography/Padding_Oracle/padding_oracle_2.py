@@ -6,12 +6,6 @@ from Crypto.Cipher import AES
 
 oracle_url = ""
 
-def unpad(message):
-    n = message[-1]
-    if n < 1 or n > AES.block_size or message[-n:] != bytes([n]*n):
-        print('invalid_padding')
-    return message[:-n]
-
 def divide_ciphertext(ciphertext):
     """ Divides ciphertext into blocks of 16 bytes """
     if len(ciphertext) % AES.block_size:
@@ -22,7 +16,6 @@ def divide_ciphertext(ciphertext):
         for i in range(0,len(ciphertext),AES.block_size*2):
             cipher_blocks.append(ciphertext[i:i+(AES.block_size*2)])
 
-        #print(cipher_blocks)
         return cipher_blocks
 
 def verify_padding(ciphertext):
@@ -30,32 +23,36 @@ def verify_padding(ciphertext):
     r = requests.get("%s?message=%s" % (oracle_url, bytes.fromhex(ciphertext).hex()))
     r.raise_for_status()
     obj = r.json()
-    #print(obj)
 
     if obj['status'] == 'invalid_mac':
         return 1
     else:
         return 0
 
-def decrypt_last_block(cipher_blocks):
-
+def decrypt_block(cipher_blocks):
+    """ Decrypt using padding oracle attack
+        input - cipher_blocks - Ciphertext divided into a list with each element 16 bytes   """
+    
     decrypted_text = ""
 
-    for z in range(1,len(cipher_blocks)):
+    """ Iterate over all blocks """
+    z = 1
+    while z < len(cipher_blocks):
         if z == 1:
             cipher_blocks_dup = cipher_blocks
         else:
-            cipher_blocks_dup = cipher_blocks[:-(z-1)]
+            cipher_blocks_dup = cipher_blocks[:-(z-1)] #Strip blocks
         prev_block = cipher_blocks[-(z+1)]
         cipher_bytes = bytearray.fromhex(cipher_blocks[-(z+1)])
         decrypted_block = []
         plaintext_block = []
 
+        """ Iterate over all bytes of a block """
         i = 1
         while i < 17:
             for k in range(1,i):
-                cipher_bytes[-k] = i ^ decrypted_block[-k]
-            for j in range(0,256):    
+                cipher_bytes[-k] = i ^ decrypted_block[-k] 
+            for j in range(0,256): #Iterate over all possibilities for a byte 
                 cipher_bytes[-i] = j
                 print(cipher_bytes.hex())
         
@@ -72,25 +69,26 @@ def decrypt_last_block(cipher_blocks):
             plaintext_block.insert(0,(decrypted_block[-i] ^ bytearray.fromhex(prev_block)[-i]))
             print("plaintext: ", plaintext_block)
 
+            """ Once last byte of last block is determined, strip last 2 blocks and dcrypt from 3rd last block """
             if i == 1 and z == 1:
-                for l in range((i+1),(plaintext_block[-i]+1)):
-                    decrypted_block.insert(0,(bytearray.fromhex(prev_block)[-l] ^ plaintext_block[-i]))
-                    plaintext_block.insert(0,plaintext_block[-i])
-                i = plaintext_block[-1] + 1
+                padding_len = plaintext_block[-1]
+                break;
             else:
                 i = i+1
 
         if z == 1:
-            unpadded_block = unpad(bytes(plaintext_block))
+            z = 3
         else:
-            unpadded_block = bytes(plaintext_block)
+            if z == 3: #if decrypting 3rd last block, removing mac bits from resulting plaintext
+                plaintext_block = plaintext_block[:-padding_len]
 
-        decrypted_text = unpadded_block.hex() + decrypted_text 
-        print("Block",z,":",unpadded_block.hex())
+            unpadded_block = bytes(plaintext_block)
+            decrypted_text = unpadded_block.hex() + decrypted_text 
+            print("Block",z,":",unpadded_block.hex())
+            z = z + 1
 
     print(decrypted_text)
-    actual_text = decrypted_text[:-64]
-    actual_text_ascii = bytearray.fromhex(actual_text).decode()
+    actual_text_ascii = bytearray.fromhex(decrypted_text).decode()
     print(actual_text_ascii)
 
 if __name__ == '__main__':
@@ -102,4 +100,4 @@ if __name__ == '__main__':
 
     cipher_blocks = divide_ciphertext(ciphertext)
 
-    decrypt_last_block(cipher_blocks)
+    decrypt_block(cipher_blocks)
