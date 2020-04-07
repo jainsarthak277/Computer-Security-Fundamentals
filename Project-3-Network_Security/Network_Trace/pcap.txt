@@ -1,0 +1,35 @@
+1. MAC addresses are :
+    a. Device 1- 52:54:00:12:35:03
+    b. Device 2- 08:00:27:da:f7:f5
+   IP addresses are :
+    a. Device 1- 10.0.2.3
+    b. Device 2- 10.0.2.15
+
+2. It appears to be a small local network, considering it has only two devices communicating in it.
+   The trace supports this, since I put a filter of DNS network, and only these two devices appeared in the 
+   filter, with the exception of one request to facebook.com and google.com each.
+
+3.  a. DNS hostname of the server it connects to is RealtekU_12:35:02 (tpr-route-server.saix.net)
+    b. A major vulnerability of the TELNET protocol is that it passes all data in clear text. Anyone with 
+       a sniffing tool can read data being sent.
+    c. Command 'Do' with subcommand 'Suppress Go Ahead' is a command run on the TELNET server.
+    d. ssh can be used in place of telnet to provide secure remote login.
+
+4. The connection I have picked is an outgoing request with server's IP 131.253.61.100, which can be seen at packet number 543. 
+    a. The domain name of the site is login.live.com
+    b. The HTTPS server cannot protect against this leak of information, since there will always be a preliminary DNS request and response which will contain the IP of the HTTPS server, along with the domain name. Since this communication must and will happen before the TLS handshake, this leak cannot be protected against.
+    c. The client has provided a list of 23 suites. For the purpose of brevity, I have detailed 5 particular suites for each subsequent question:
+        I.   TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256; ECDH key exchange with ECDSA authentication with AES-128 stream cipher and SHA256 MAC.
+        II.  TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA256; ECDH key exchange with RSA authentication with AES-256 block cipher and SHA256 MAC.
+        III. TLS_DHE_RSA_WITH_AES_128_CBC_SHA; Diffie-Hellman key exchange with RSA authentication with AES-128 block cipher and SHA MAC.
+        IV.  TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA; Diffie-Hellman key exchange with RSA authentication with Camellia-256 block cipher and SHA MAC.
+        V.   TLS_RSA_WITH_AES_256_CBC_SHA; RSA key exchange with RSA authentication wth AES-256 block cipher and SHA MAC.
+    d. TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA looks worrisome to me. 3DES has found to have been vulnerable to the Sweet32 vulnerability which exploits collision attacks, and is, in fact, being retired 2023 onwards.
+    e. The server chooses TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+
+5.  a. Domain of first search engine used is www.bing.com
+    b. Being an HTTP POST request, data is visible in plain text to any sniffer.
+    c. One of the things the user searched for is rewardsapp.
+    d. Users can protect themselves by using HTTPS.
+
+6. 10 years.
